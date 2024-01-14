@@ -6,7 +6,19 @@ import { connect } from 'cloudflare:sockets';
 // [Windows] Press "Win + R", input cmd and run:  Powershell -NoExit -Command "[guid]::NewGuid()"
 let userID = 'd342d11e-d424-4583-b36e-524ab1f0afa4';
 
-const proxyIPs = ['23.162.136.169', 'cdn.xn--b6gac.eu.org', 'cdn-all.xn--b6gac.eu.org', 'edgetunnel.anycast.eu.org'];
+// see https://github.com/yonggekkk/Cloudflare-workers-pages-vless/blob/main/ProxyIP.txt
+const proxyIPs = ['23.162.136.169',
+'199.180.115.167',
+'5.161.129.191',
+'2a01:4f8:c2c:123f:64:5:ac40:6c0a',
+'2a01:4f8:c2c:123f:64:5:ac40:6d0a',
+'192.210.213.192',
+'2a00:1098:2b::1:ac40:6d0a',
+'5.161.127.37',
+'2a00:1098:2b::1:ac40:6c0a',
+'2a00:1098:2c::5:ac40:6c0a',
+'2a00:1098:2c::5:ac40:6d0a'
+]
 
 let proxyIP = proxyIPs[Math.floor(Math.random() * proxyIPs.length)];
 
@@ -39,13 +51,13 @@ export default {
 			if (!upgradeHeader || upgradeHeader !== 'websocket') {
 				const url = new URL(request.url);
 				switch (url.pathname) {
-					case '/cf':
-						return new Response(JSON.stringify(request.cf, null, 4), {
-							status: 200,
-							headers: {
-								"Content-Type": "application/json;charset=utf-8",
-							},
-						});
+					// case '/cf':
+					// 	return new Response(JSON.stringify(request.cf, null, 4), {
+					// 		status: 200,
+					// 		headers: {
+					// 			"Content-Type": "application/json;charset=utf-8",
+					// 		},
+					// 	});
 					case `/${userID_Path}`: {
 						const vlessConfig = getVLESSConfig(userID, request.headers.get('Host'));
 						return new Response(`${vlessConfig}`, {
@@ -71,13 +83,13 @@ export default {
 							}
 						});
 					}
-					case `/bestip/${userID_Path}`: {
-						const bestiplink = `https://sub.xf.free.hr/auto?host=${request.headers.get('Host')}&uuid=${userID_Path}`
-						const reqHeaders = new Headers(request.headers);
-						const bestipresponse = await fetch(bestiplink, { redirect: 'manual', headers: reqHeaders, });
-						// Construct and return response object
-						return bestipresponse
-					}
+					// case `/bestip/${userID_Path}`: {
+					// 	const bestiplink = `https://sub.xf.free.hr/auto?host=${request.headers.get('Host')}&uuid=${userID_Path}`
+					// 	const reqHeaders = new Headers(request.headers);
+					// 	const bestipresponse = await fetch(bestiplink, { redirect: 'manual', headers: reqHeaders, });
+					// 	// Construct and return response object
+					// 	return bestipresponse
+					// }
 					default:
 						// return new Response('Not found', { status: 404 });
 						// For any other path, reverse proxy to 'www.fmprc.gov.cn' and return the original response, caching it in the process
@@ -844,10 +856,10 @@ function createVLESSSub(userID_Path, hostName) {
 				const commonUrlPart_http = `:${port}?encryption=none&security=none&fp=random&type=ws&host=${hostName}&path=%2F%3Fed%3D2048#${hostName}-HTTP-${port}`;
 				const vlessMainHttp = `vless://${userID}@${hostName}${commonUrlPart_http}`;
 
+				output.push(`${vlessMainHttp}`);
 				// For each proxy IP, generate a VLESS configuration and add to output
 				proxyIPs.forEach((proxyIP) => {
 					const vlessSecHttp = `vless://${userID}@${proxyIP}${commonUrlPart_http}-${proxyIP}-EDtunnel`;
-					output.push(`${vlessMainHttp}`);
 					output.push(`${vlessSecHttp}`);
 				});
 			});
@@ -857,10 +869,10 @@ function createVLESSSub(userID_Path, hostName) {
 			const commonUrlPart_https = `:${port}?encryption=none&security=tls&sni=${hostName}&fp=random&type=ws&host=${hostName}&path=%2F%3Fed%3D2048#${hostName}-HTTPS-${port}`;
 			const vlessMainHttps = `vless://${userID}@${hostName}${commonUrlPart_https}`;
 
+				output.push(`${vlessMainHttps}`);
 			// For each proxy IP, generate a VLESS configuration and add to output
 			proxyIPs.forEach((proxyIP) => {
 				const vlessSecHttps = `vless://${userID}@${proxyIP}${commonUrlPart_https}-${proxyIP}-EDtunnel`;
-				output.push(`${vlessMainHttps}`);
 				output.push(`${vlessSecHttps}`);
 			});
 		});
@@ -869,4 +881,3 @@ function createVLESSSub(userID_Path, hostName) {
 	// Join output with newlines
 	return output.join('\n');
 }
-
