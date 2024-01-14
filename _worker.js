@@ -8,16 +8,16 @@ let userID = 'd342d11e-d424-4583-b36e-524ab1f0afa4';
 
 // see https://github.com/yonggekkk/Cloudflare-workers-pages-vless/blob/main/ProxyIP.txt
 const proxyIPs = ['23.162.136.169',
-'199.180.115.167',
-'5.161.129.191',
-'2a01:4f8:c2c:123f:64:5:ac40:6c0a',
-'2a01:4f8:c2c:123f:64:5:ac40:6d0a',
-'192.210.213.192',
-'2a00:1098:2b::1:ac40:6d0a',
-'5.161.127.37',
-'2a00:1098:2b::1:ac40:6c0a',
-'2a00:1098:2c::5:ac40:6c0a',
-'2a00:1098:2c::5:ac40:6d0a'
+	'199.180.115.167',
+	'5.161.129.191',
+	'2a01:4f8:c2c:123f:64:5:ac40:6c0a',
+	'2a01:4f8:c2c:123f:64:5:ac40:6d0a',
+	'192.210.213.192',
+	'2a00:1098:2b::1:ac40:6d0a',
+	'5.161.127.37',
+	'2a00:1098:2b::1:ac40:6c0a',
+	'2a00:1098:2c::5:ac40:6c0a',
+	'2a00:1098:2c::5:ac40:6d0a'
 ]
 
 let proxyIP = proxyIPs[Math.floor(Math.random() * proxyIPs.length)];
@@ -869,7 +869,7 @@ function createVLESSSub(userID_Path, hostName) {
 			const commonUrlPart_https = `:${port}?encryption=none&security=tls&sni=${hostName}&fp=random&type=ws&host=${hostName}&path=%2F%3Fed%3D2048#${hostName}-HTTPS-${port}`;
 			const vlessMainHttps = `vless://${userID}@${hostName}${commonUrlPart_https}`;
 
-				output.push(`${vlessMainHttps}`);
+			output.push(`${vlessMainHttps}`);
 			// For each proxy IP, generate a VLESS configuration and add to output
 			proxyIPs.forEach((proxyIP) => {
 				const vlessSecHttps = `vless://${userID}@${proxyIP}${commonUrlPart_https}-${proxyIP}-EDtunnel`;
